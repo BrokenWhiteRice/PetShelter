@@ -9,7 +9,7 @@
 ### Ba Ta:
 
 
--
+- Finished Assignment 02
 ### Arnav Shah:
 
 
