@@ -1,6 +1,6 @@
 # PetShelterManagement App
 ## Team members: Ba Ta, Arnav Shah, Raj Rai
-< install Bootstrap 5 pkg since we cannot push all of them to repo, it's too large >
+< checkout branch assignment-# to get the right commit >
 </br>
 < please remember to type in your tasks for submission >
 
