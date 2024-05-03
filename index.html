@@ -174,6 +174,7 @@
         </div>
       </div>
     </div>
+<<<<<<< Updated upstream
     <div class="container mb-3">
       <div class="row">
         <div class="col-sm-4">
@@ -276,6 +277,100 @@
             </div>
           </div>
         </div>
+=======
+
+    <div id="pagination" class="container mb-3 text-center"></div>
+
+    <!-- Button to trigger the modal -->
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#createPetModal"
+    >
+      Add a New Pet
+    </button>
+
+    <!-- Modal for creating a new pet -->
+    <div
+      class="modal fade"
+      id="createPetModal"
+      tabindex="-1"
+      aria-labelledby="createPetModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createPetModalLabel">Add New Pet</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="petForm">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" required />
+              </div>
+              <div class="mb-3">
+                <label for="type" class="form-label">Type</label>
+                <input type="text" class="form-control" id="type" required />
+              </div>
+              <div class="mb-3">
+                <label for="breed" class="form-label">Breed</label>
+                <input type="text" class="form-control" id="breed" required />
+              </div>
+              <div class="mb-3">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" class="form-control" id="color" required />
+              </div>
+              <div class="mb-3">
+                <label for="img" class="form-label">Image URL</label>
+                <input type="url" class="form-control" id="img" required />
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const petCardsContainer = document.getElementById("petCards");
+        const paginationContainer = document.getElementById("pagination");
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        function renderPetCards(page) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const paginatedItems = petData.slice(startIndex, endIndex);
+
+          petCardsContainer.innerHTML = ""; // Clear existing cards
+
+          const cardContainer = document.createElement("div");
+          cardContainer.classList.add("card-container");
+
+          paginatedItems.forEach((pet) => {
+            const cardHtml = `
+            <div class="card">
+              <img src="${pet.img}" style="height: 300px" class="card-img-top" />
+              <div class="card-body">
+                <h5 class="card-title">${pet.name}</h5>
+                <p class="card-text"><strong>Type:</strong> ${pet.type}</p>
+                <p class="card-text"><strong>Breed:</strong> ${pet.breed}</p>
+                <button class="btn btn-primary view-details-btn" data-bs-toggle="modal" data-bs-target="#petModal" data-animal-id="${pet.animalID}">View Details</button>
+              </div>
+            </div>`;
+            cardContainer.innerHTML += cardHtml;
+          });
+>>>>>>> Stashed changes
 
         <div class="col-sm-4">
           <div class="card mt-5 mb-3">
@@ -432,6 +527,7 @@
           </div>
         </div>
 
+<<<<<<< Updated upstream
         <div class="col-sm-4">
           <div class="card mt-5 mb-3">
             <img
@@ -502,6 +598,115 @@
                 <strong>Sex:</strong> Female
                 <ion-icon style="color: pink" name="female-outline"></ion-icon>
               </p>
+=======
+          const totalPages = Math.ceil(petData.length / itemsPerPage);
+
+          // Previous Button
+          const prevButton = document.createElement("button");
+          prevButton.textContent = "Previous";
+          prevButton.className = "btn btn-primary me-2";
+          prevButton.onclick = function () {
+            changePage(currentPage - 1);
+          };
+          prevButton.disabled = currentPage === 1;
+          paginationContainer.appendChild(prevButton);
+
+          // Numeric buttons
+          for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement("button");
+            pageButton.textContent = i;
+            pageButton.className = "btn btn-primary me-2";
+            pageButton.onclick = function () {
+              changePage(i);
+            };
+            pageButton.disabled = currentPage === i;
+            paginationContainer.appendChild(pageButton);
+          }
+
+          // Next Button
+          const nextButton = document.createElement("button");
+          nextButton.textContent = "Next";
+          nextButton.className = "btn btn-primary";
+          nextButton.onclick = function () {
+            changePage(currentPage + 1);
+          };
+          nextButton.disabled = currentPage === totalPages;
+          paginationContainer.appendChild(nextButton);
+        }
+
+        function changePage(page) {
+          const totalPages = Math.ceil(petData.length / itemsPerPage);
+          currentPage = Math.max(1, Math.min(page, totalPages));
+          renderPetCards(currentPage);
+        }
+
+        // Event listener for modal show event
+        document
+          .getElementById("petModal")
+          .addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+            const animalID = button.getAttribute("data-animal-id");
+            populateModal(animalID);
+
+            const detailPageLink = document.getElementById("detailPageLink");
+            detailPageLink.href = `detail.html?animalID=${animalID}`;
+          });
+
+        function populateModal(animalID) {
+          const pet = petData.find((p) => p.animalID === animalID);
+          const modalBody = document.getElementById("petModalBody");
+          modalBody.innerHTML = `
+          <img src="${pet.img}" style="height: 300px" class="card-img-top mb-3" />
+          <p><strong>Name:</strong> ${pet.name}</p>
+          <p><strong>Type:</strong> ${pet.type}</p>
+          <p><strong>Breed:</strong> ${pet.breed}</p>
+          <p><strong>Color:</strong> ${pet.color}</p>
+        `;
+        }
+
+        // Event listener for form submission
+        document
+          .getElementById("petForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Retrieve input values
+            const name = document.getElementById("name").value;
+            const type = document.getElementById("type").value;
+            const breed = document.getElementById("breed").value;
+            const color = document.getElementById("color").value;
+            const img = document.getElementById("img").value;
+
+            // Generate a unique animalID (You may use a more robust method in a real application)
+            const animalID = String(Date.now());
+
+            // Create a new pet object
+            const newPet = {
+              animalID,
+              name,
+              type,
+              breed,
+              color,
+              img,
+            };
+
+            // Add the new pet to the petData array
+            petData.push(newPet);
+
+            // Close the modal
+            const createPetModal = new bootstrap.Modal(
+              document.getElementById("createPetModal")
+            );
+            createPetModal.hide();
+
+            // Render the updated list of pets
+            renderPetCards(currentPage);
+          });
+
+        renderPetCards(currentPage);
+      });
+    </script>
+>>>>>>> Stashed changes
 
               <p class="card-text">
                 <strong>Color:</strong> Seal point with blue eyes
