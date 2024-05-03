@@ -10,6 +10,17 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
+    <style>
+      .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+      .card {
+        flex: 0 0 calc(33.333% - 20px);
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
     <div class="container text-center mt-5">
@@ -19,104 +30,148 @@
       </p>
     </div>
 
+    <div id="petCards" class="container mb-3"></div>
+
     <div
-      id="petCards"
-      class="container mb-3"
-      style="height: 100%; width: 100%"
-    ></div>
+      class="modal fade"
+      id="petModal"
+      tabindex="-1"
+      aria-labelledby="petModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="petModalLabel">Pet Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="petModalBody">
+            <!-- Pet details will be dynamically inserted here -->
+          </div>
+          <div class="modal-footer">
+            <a id="detailPageLink" href="detail.html" class="btn btn-primary"
+              >Go to pet page</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pagination" class="container mb-3 text-center"></div>
+
     <script src="data.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-          const petCardsContainer = document.getElementById("petCards");
-          let currentPage = 1;
-          const itemsPerPage = 9;
-      
-          function renderPetCards(page) {
-              const startIndex = (page - 1) * itemsPerPage;
-              const endIndex = startIndex + itemsPerPage;
-              const paginatedItems = petData.slice(startIndex, endIndex);
-      
-              petCardsContainer.innerHTML = ''; // Clear existing cards
-      
-              paginatedItems.forEach((pet, index) => {
-                  const cardHtml = `
-                      <div class="col-sm-4">
-                          <div class="card mt-5 mb-3">
-                              <img src="${pet.img}" style="height: 500px" class="card-img-top" />
-                              <div class="card-body">
-                                  <h5 class="card-title">${pet.name}</h5>
-                                  <p class="card-text"><strong>Type:</strong> ${pet.type}</p>
-                                  <p class="card-text"><strong>Breed:</strong> ${pet.breed}</p>
-                                  <a href="detail.html?index=${startIndex + index}" class="btn btn-primary">View Details</a>
-                              </div>
-                          </div>
-                      </div>`;
-                  const row = document.createElement('div');
-                  row.classList.add('row');
-                  row.innerHTML = cardHtml;
-                  petCardsContainer.appendChild(row);
-              });
-      
-              updatePagination();
+        const petCardsContainer = document.getElementById("petCards");
+        const paginationContainer = document.getElementById("pagination");
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        function renderPetCards(page) {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const paginatedItems = petData.slice(startIndex, endIndex);
+
+          petCardsContainer.innerHTML = ""; // Clear existing cards
+
+          const cardContainer = document.createElement("div");
+          cardContainer.classList.add("card-container");
+
+          paginatedItems.forEach((pet) => {
+            const cardHtml = `
+          <div class="card">
+            <img src="${pet.img}" style="height: 300px" class="card-img-top" />
+            <div class="card-body">
+              <h5 class="card-title">${pet.name}</h5>
+              <p class="card-text"><strong>Type:</strong> ${pet.type}</p>
+              <p class="card-text"><strong>Breed:</strong> ${pet.breed}</p>
+              <button class="btn btn-primary view-details-btn" data-bs-toggle="modal" data-bs-target="#petModal" data-animal-id="${pet.animalID}">View Details</button>
+            </div>
+          </div>`;
+            cardContainer.innerHTML += cardHtml;
+          });
+
+          petCardsContainer.appendChild(cardContainer);
+          updatePagination();
+        }
+
+        function updatePagination() {
+          paginationContainer.innerHTML = ""; // Clear existing pagination
+
+          const totalPages = Math.ceil(petData.length / itemsPerPage);
+
+          // Previous Button
+          const prevButton = document.createElement("button");
+          prevButton.textContent = "Previous";
+          prevButton.className = "btn btn-primary me-2";
+          prevButton.onclick = function () {
+            changePage(currentPage - 1);
+          };
+          prevButton.disabled = currentPage === 1;
+          paginationContainer.appendChild(prevButton);
+
+          // Numeric buttons
+          for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement("button");
+            pageButton.textContent = i;
+            pageButton.className = "btn btn-primary me-2";
+            pageButton.onclick = function () {
+              changePage(i);
+            };
+            pageButton.disabled = currentPage === i;
+            paginationContainer.appendChild(pageButton);
           }
-      
-          function updatePagination() {
-    const paginationContainer = document.getElementById("pagination") || document.createElement("div");
-    if (!paginationContainer.id) {
-        paginationContainer.id = "pagination";
-        document.body.appendChild(paginationContainer);
-    }
 
-    paginationContainer.innerHTML = ''; // Clear existing
+          // Next Button
+          const nextButton = document.createElement("button");
+          nextButton.textContent = "Next";
+          nextButton.className = "btn btn-primary";
+          nextButton.onclick = function () {
+            changePage(currentPage + 1);
+          };
+          nextButton.disabled = currentPage === totalPages;
+          paginationContainer.appendChild(nextButton);
+        }
 
-    const totalPages = Math.ceil(petData.length / itemsPerPage);
-
-    // Previous Button
-    const prevButton = document.createElement("button");
-    prevButton.textContent = "Previous";
-    prevButton.onclick = function() { changePage(currentPage - 1); };
-    prevButton.disabled = currentPage === 1;
-    paginationContainer.appendChild(prevButton);
-
-    // Numeric buttons
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = document.createElement("button");
-        pageButton.textContent = i;
-        pageButton.onclick = function() { changePage(i); };
-        pageButton.disabled = currentPage === i;
-        paginationContainer.appendChild(pageButton);
-    }
-
-    // Next Button
-    const nextButton = document.createElement("button");
-    nextButton.textContent = "Next";
-    nextButton.onclick = function() { changePage(currentPage + 1); };
-    nextButton.disabled = currentPage === totalPages;
-    paginationContainer.appendChild(nextButton);
-}
-
-      
-          function changePage(page) {
-              const totalPages = Math.ceil(petData.length / itemsPerPage);
-              currentPage = Math.max(1, Math.min(page, totalPages));
-              renderPetCards(currentPage);
-          }
-      
-          // Initial render
+        function changePage(page) {
+          const totalPages = Math.ceil(petData.length / itemsPerPage);
+          currentPage = Math.max(1, Math.min(page, totalPages));
           renderPetCards(currentPage);
+        }
+
+        // Event listener for modal show event
+        document
+          .getElementById("petModal")
+          .addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+            const animalID = button.getAttribute("data-animal-id");
+            populateModal(animalID);
+
+            const detailPageLink = document.getElementById("detailPageLink");
+            detailPageLink.href = `detail.html?animalID=${animalID}`;
+          });
+
+        function populateModal(animalID) {
+          const pet = petData.find((p) => p.animalID === animalID);
+          const modalBody = document.getElementById("petModalBody");
+          modalBody.innerHTML = `
+        <img src="${pet.img}" style="height: 300px" class="card-img-top mb-3" />
+        <p><strong>Name:</strong> ${pet.name}</p>
+        <p><strong>Type:</strong> ${pet.type}</p>
+        <p><strong>Breed:</strong> ${pet.breed}</p>
+        <p><strong>Color:</strong> ${pet.color}</p>
+      `;
+        }
+
+        renderPetCards(currentPage);
       });
-      </script>      
-    <!-- -------------------------------------------------------- -->
-    <!-- icon -->
-    <script
-      type="module"
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-    ></script>
-    <script
-      nomodule
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-    ></script>
-    <!-- icon -->
+    </script>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
